@@ -728,7 +728,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                                 ]
                             )
                         )
-                        return await query.answer('Cʜᴇᴄᴋ PM, I ʜᴀᴠᴇ sᴇɴᴛ ғɪʟᴇs ɪɴ PM', show_alert=True)
+                        return await query.answer(text='Cʜᴇᴄᴋ PM, I ʜᴀᴠᴇ sᴇɴᴛ ғɪʟᴇs ɪɴ PM' if query.message.chat.type != enums.ChatType.PRIVATE else 'I ʜᴀᴠᴇ sᴜᴄᴄᴇssғᴜʟʟʏ sᴇɴᴛ ғɪʟᴇs', show_alert=True)
                 else:
                     return await query.answer(f"Hᴇʏ {query.from_user.first_name}, Tʜɪs Is Nᴏᴛ Yᴏᴜʀ Mᴏᴠɪᴇ Rᴇǫᴜᴇsᴛ. Rᴇǫᴜᴇsᴛ Yᴏᴜʀ's !", show_alert=True)
         except UserIsBlocked:
@@ -1549,7 +1549,6 @@ async def auto_filter(client, msg, spoll=False):
         message = msg.message.reply_to_message  # msg will be callback query
         search, files, offset, total_results = spoll
         settings = await get_settings(message.chat.id)
-    temp.SEND_ALL_TEMP[message.from_user.id] = files
     temp.KEYWORD[message.from_user.id] = search
     if 'is_shortlink' in settings.keys():
         ENABLE_SHORTLINK = settings['is_shortlink']
@@ -1698,17 +1697,18 @@ async def auto_filter(client, msg, spoll=False):
         cap = f"<b>Hᴇʏ {message.from_user.mention},\n\n🏷 Title: {search}\n📪 Your Files are Ready Now !.</b>"
     if imdb and imdb.get('poster'):
         try:
-            joelkb = await message.reply_photo(photo=imdb.get('poster'), caption=cap[:1024], reply_markup=InlineKeyboardMarkup(btn))
+            joelkb = await message.reply_photo(photo=imdb.get('poster'), caption=cap[:1024], reply_markup=InlineKeyboardMarkup(btn), quote=True)
         except (MediaEmpty, PhotoInvalidDimensions, WebpageMediaEmpty):
             pic = imdb.get('poster')
             poster = pic.replace('.jpg', "._V1_UX360.jpg")
-            joelkb = await message.reply_photo(photo=poster, caption=cap[:1024], reply_markup=InlineKeyboardMarkup(btn))
+            joelkb = await message.reply_photo(photo=poster, caption=cap[:1024], reply_markup=InlineKeyboardMarkup(btn), quote=True)
         except Exception as e:
             logger.exception(e)
-            joelkb = await message.reply_text(text=cap, reply_markup=InlineKeyboardMarkup(btn))
+            joelkb = await message.reply_text(text=cap, reply_markup=InlineKeyboardMarkup(btn), quote=True)
     else:
-        joelkb = await message.reply_text(text=cap, reply_markup=InlineKeyboardMarkup(btn))
+        joelkb = await message.reply_text(text=cap, reply_markup=InlineKeyboardMarkup(btn), quote=True)
     # better: removed duplicate lines
+    temp.SEND_ALL_TEMP[joelkb.id] = files
     try:
         if settings['auto_delete']:
             await asyncio.sleep(600)
