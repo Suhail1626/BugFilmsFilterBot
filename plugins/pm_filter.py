@@ -94,7 +94,7 @@ async def next_page(bot, query):
     if not files:
         return
     settings = await get_settings(query.message.chat.id)
-    temp.SEND_ALL_TEMP[query.from_user.id] = files
+    temp.SEND_ALL_TEMP[query.message.id] = {'id': query.from_user.id, 'files': files}
     if 'is_shortlink' in settings.keys():
         ENABLE_SHORTLINK = settings['is_shortlink']
     else:
@@ -264,7 +264,7 @@ async def language_check(bot, query):
     files, offset, total_results = await get_search_results(query.message.chat.id, movie, offset=0, filter=True)
     if files:
         settings = await get_settings(query.message.chat.id)
-        temp.SEND_ALL_TEMP[query.from_user.id] = files
+        temp.SEND_ALL_TEMP[query.message.id] = {'id': query.from_user.id, 'files': files}
         if 'is_shortlink' in settings.keys():
             ENABLE_SHORTLINK = settings['is_shortlink']
         else:
@@ -1708,7 +1708,7 @@ async def auto_filter(client, msg, spoll=False):
     else:
         joelkb = await message.reply_text(text=cap, reply_markup=InlineKeyboardMarkup(btn), quote=True)
     # better: removed duplicate lines
-    temp.SEND_ALL_TEMP[joelkb.id] = files
+    temp.SEND_ALL_TEMP[joelkb.id] = {'id': message.from_user.id, 'files': files}
     try:
         if settings['auto_delete']:
             await asyncio.sleep(600)
@@ -1745,7 +1745,8 @@ async def advantage_spell_chok(client, msg):
         k = await msg.reply_photo(
             photo=SPELL_IMG, 
             caption=script.I_CUDNT.format(mv_rqst),
-            reply_markup=InlineKeyboardMarkup(button)
+            reply_markup=InlineKeyboardMarkup(button),
+            quote=True
         )
         await asyncio.sleep(30)
         await k.delete()
@@ -1761,7 +1762,8 @@ async def advantage_spell_chok(client, msg):
         k = await msg.reply_photo(
             photo=SPELL_IMG, 
             caption=script.I_CUDNT.format(mv_rqst),
-            reply_markup=InlineKeyboardMarkup(button)
+            reply_markup=InlineKeyboardMarkup(button),
+            quote=True
         )
         await asyncio.sleep(30)
         await k.delete()
@@ -1782,7 +1784,8 @@ async def advantage_spell_chok(client, msg):
     spell_check_del = await msg.reply_photo(
         photo=(SPELL_IMG),
         caption=(script.CUDNT_FND.format(mv_rqst)),
-        reply_markup=InlineKeyboardMarkup(btn)
+        reply_markup=InlineKeyboardMarkup(btn),
+        quote=True
     )
     try:
         if settings['auto_delete']:
