@@ -24,9 +24,9 @@ async def fetch_reqs(bot: Client, request: ChatJoinRequest):
         user_name=request.from_user.username,
         date=request.date
     )
-    file_id = FSUB_TEMP.get(int(request.from_user.id))['file_id']
-    ident = FSUB_TEMP.get(request.from_user.id)['ident']
-    mode = FSUB_TEMP.get(request.from_user.id)['mode']
+    file_id = FSUB_TEMP.get(request.from_user.id)['file_id'] if FSUB_TEMP.get(request.from_user.id) else None
+    ident = FSUB_TEMP.get(request.from_user.id)['ident'] if FSUB_TEMP.get(request.from_user.id) else None
+    mode = FSUB_TEMP.get(request.from_user.id)['mode'] if FSUB_TEMP.get(request.from_user.id) else None
     #add these supports later ["BATCH", "DSTORE", "verify", "SHORT", "SELECT", "SENDALL"]
     if file_id and mode == 'files':
         if IS_VERIFY and not await check_verification(bot, request.from_user.id):
@@ -392,7 +392,7 @@ async def Force_Sub(bot: Client, message: Message, file_id = None, ident = "chec
         btn = [[
             InlineKeyboardButton("❆ Jᴏɪɴ Oᴜʀ Bᴀᴄᴋ-Uᴘ Cʜᴀɴɴᴇʟ ❆", url=link.invite_link)
         ]]
-        FSUB_TEMP[int(message.from_user.id)] = {'file_id': file_id, 'ident': ident, 'mode': mode}
+        FSUB_TEMP[message.from_user.id] = {'file_id': file_id, 'ident': ident, 'mode': mode}
         await message.reply(
             text=script.FSUB_TXT,
             reply_markup=InlineKeyboardMarkup(btn),
