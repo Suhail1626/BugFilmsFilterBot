@@ -73,7 +73,7 @@ async def fetch_reqs(bot: Client, request: ChatJoinRequest):
                     ]
                 )
             )
-            FSUB_TEMP[request.from_user.id] = {'file_id': None, 'ident': None}
+            FSUB_TEMP[request.from_user.id] = {'file_id': None, 'ident': None, 'mode': None}
     elif file_id and mode == "BATCH":
         if IS_VERIFY and not await check_verification(bot, request.from_user.id):
             btn = [[
@@ -155,6 +155,7 @@ async def fetch_reqs(bot: Client, request: ChatJoinRequest):
                 continue
             await asyncio.sleep(1) 
         await sts.delete()
+        FSUB_TEMP[request.from_user.id] = {'file_id': None, 'ident': None, 'mode': None}
         return
     elif file_id and mode == "DSTORE":
         if IS_VERIFY and not await check_verification(bot, request.from_user.id):
@@ -214,6 +215,7 @@ async def fetch_reqs(bot: Client, request: ChatJoinRequest):
                     logger.error(f"Error: {e}")
                     continue
             await asyncio.sleep(1) 
+        FSUB_TEMP[request.from_user.id] = {'file_id': None, 'ident': None, 'mode': None}
         return await sts.delete()
     elif file_id and mode == "verify":
         userid = file_id.split("-", 3)[0]
@@ -227,6 +229,7 @@ async def fetch_reqs(bot: Client, request: ChatJoinRequest):
                 protect_content=True if PROTECT_CONTENT else False
             )
         is_valid = await check_token(bot, userid, token)
+        FSUB_TEMP[request.from_user.id] = {'file_id': None, 'ident': None, 'mode': None}
         if is_valid == True:
             btn = [[
                 InlineKeyboardButton("Get File", url=f"https://telegram.me/{temp.U_NAME}?start={ident}_{fileid}" if ident == 'files' else f"https://telegram.me/{temp.U_NAME}?start={ident}-{fileid}")
@@ -249,6 +252,7 @@ async def fetch_reqs(bot: Client, request: ChatJoinRequest):
         msg_id = file_id.split("-", 1)[0]
         chatid = file_id.split("-", 1)[1]
         link = await get_shortlink(chat_id=chatid, link=f"https://telegram.me/{temp.U_NAME}?start=SENDALL-{msg_id}")
+        FSUB_TEMP[request.from_user.id] = {'file_id': None, 'ident': None, 'mode': None}
         return await bot.send_message(
             chat_id=int(request.from_user.id),
             text=f"<b>Hᴇʀᴇ Is Yᴏᴜʀ Lɪɴᴋ Tᴏ Gᴇᴛ Tʜᴇ Fɪʟᴇs {link}</b>",
@@ -271,6 +275,7 @@ async def fetch_reqs(bot: Client, request: ChatJoinRequest):
         files = temp.SEND_ALL_TEMP.get(int(msg_id))['files']
         userid = temp.SEND_ALL_TEMP.get(int(msg_id))['id']
         is_over = await send_all(bot, userid, files, 'file')
+        FSUB_TEMP[request.from_user.id] = {'file_id': None, 'ident': None, 'mode': None}
         if is_over == 'done':
             return await bot.send_message(request.from_user.id, f"Hᴇʏ, Aʟʟ ғɪʟᴇs ᴏɴ ᴛʜᴇ sᴇʟᴇᴄᴛᴇᴅ ᴘᴀɢᴇ ʜᴀs ʙᴇᴇɴ sᴇɴᴛ sᴜᴄᴄᴇssғᴜʟʟʏ !")
         else:
