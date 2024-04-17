@@ -428,7 +428,7 @@ async def advantage_spoll_choker(bot, query):
         return await query.answer(script.OLD_ALRT_TXT.format(query.from_user.first_name), show_alert=True)
     if movie_ == "close_spellcheck":
         return await query.message.delete()
-    movie = movies[(int(movie_))]
+    movie = str(movies[(int(movie_))]).replace(":", "")
     await query.answer(script.TOP_ALRT_MSG)
     gl = await global_filters(bot, query.message, text=movie)
     if gl == False:
