@@ -728,7 +728,8 @@ async def cb_handler(client: Client, query: CallbackQuery):
                                 ]
                             )
                         )
-                        return await query.answer(text='Cʜᴇᴄᴋ PM, I ʜᴀᴠᴇ sᴇɴᴛ ғɪʟᴇs ɪɴ PM' if query.message.chat.type != enums.ChatType.PRIVATE else 'I ʜᴀᴠᴇ sᴜᴄᴄᴇssғᴜʟʟʏ sᴇɴᴛ ғɪʟᴇs', show_alert=True)
+                        if query.message.chat.type != enums.ChatType.PRIVATE:
+                            return await query.answer(text='Cʜᴇᴄᴋ PM, I ʜᴀᴠᴇ sᴇɴᴛ ғɪʟᴇs ɪɴ PM', show_alert=True)
                 else:
                     return await query.answer(f"Hᴇʏ {query.from_user.first_name}, Tʜɪs Is Nᴏᴛ Yᴏᴜʀ Mᴏᴠɪᴇ Rᴇǫᴜᴇsᴛ. Rᴇǫᴜᴇsᴛ Yᴏᴜʀ's !", show_alert=True)
         except UserIsBlocked:
