@@ -204,7 +204,7 @@ Nᴀᴍᴇ - {}"""
 
 <b>╔══ ᴊᴏɪɴ ᴡɪᴛʜ ᴜs ══╗
 ➲ @BugFilmsUpdates
-➲ @BugFilmsRequests
+➲ @CinemaColonyGroup
 ╚══ ᴊᴏɪɴ ᴡɪᴛʜ ᴜs ══╝</b>"""
 
     IMDB_TEMPLATE_TXT = """
