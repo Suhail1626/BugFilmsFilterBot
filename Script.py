@@ -203,7 +203,7 @@ Nᴀᴍᴇ - {}"""
 <code>{file_name}</code>
 
 <b>╔══ ᴊᴏɪɴ ᴡɪᴛʜ ᴜs ══╗
-➲ @BugFilmsUpdates
+➲ @CinemaColonyUpdates
 ➲ @CinemaColonyGroup
 ╚══ ᴊᴏɪɴ ᴡɪᴛʜ ᴜs ══╝</b>"""
 
