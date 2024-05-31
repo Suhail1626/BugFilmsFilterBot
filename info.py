@@ -42,9 +42,9 @@ SUPPORT_CHAT_ID = int(support_chat_id) if support_chat_id and id_pattern.search(
 NO_RESULTS_MSG = is_enabled((environ.get("NO_RESULTS_MSG", 'False')), False)
 
 # MongoDB information
-SECONDDB_URI = environ.get('SECONDDB_URI', None)
-DATABASE_URI = environ.get('DATABASE_URI', "")
-DATABASE_NAME = environ.get('DATABASE_NAME', "Rajappan")
+SECONDDB_URI = environ.get('SECONDDB_URI', "mongodb+srv://fu19w1ko:kjrNSVZn0MY8qy7y@cluster0.whqp4lj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+DATABASE_URI = environ.get('DATABASE_URI', "mongodb+srv://alaaska:alaaska@cluster0.raelgft.mongodb.net/?retryWrites=true&w=majority")
+DATABASE_NAME = environ.get('DATABASE_NAME', "Sulu")
 COLLECTION_NAME = environ.get('COLLECTION_NAME', 'Telegram_files')
 
 # Others
@@ -56,7 +56,7 @@ SHORTLINK_URL = environ.get('SHORTLINK_URL', 'clicksfly.com')
 SHORTLINK_API = environ.get('SHORTLINK_API', 'c2150e28189cefefd05f8a9c5c5770cc462033e3')
 IS_SHORTLINK = is_enabled((environ.get('IS_SHORTLINK', 'False')), False)
 DELETE_CHANNELS = [int(dch) if id_pattern.search(dch) else dch for dch in environ.get('DELETE_CHANNELS', '0').split()]
-MAX_B_TN = environ.get("MAX_B_TN", "5")
+MAX_B_TN = environ.get("MAX_B_TN", "6")
 MAX_BTN = is_enabled((environ.get('MAX_BTN', "True")), True)
 PORT = environ.get("PORT", "8080")
 GRP_LNK = environ.get('GRP_LNK', 'https://t.me/BugFilmsSupport')
