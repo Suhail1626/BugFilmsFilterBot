@@ -68,7 +68,7 @@ async def fetch_reqs(bot: Client, request: ChatJoinRequest):
                             InlineKeyboardButton('Uᴘᴅᴀᴛᴇs Cʜᴀɴɴᴇʟ', url=CHNL_LNK)
                         ],
                         [
-                            InlineKeyboardButton("Bᴏᴛ Oᴡɴᴇʀ", url="t.me/creatorbeatz")
+                            InlineKeyboardButton("Bᴏᴛ Oᴡɴᴇʀ", url="https://t.me/CinemaColonyUpdates")
                         ]
                     ]
                 )
@@ -126,7 +126,7 @@ async def fetch_reqs(bot: Client, request: ChatJoinRequest):
                           InlineKeyboardButton('Sᴜᴘᴘᴏʀᴛ Gʀᴏᴜᴘ', url=GRP_LNK),
                           InlineKeyboardButton('Uᴘᴅᴀᴛᴇs Cʜᴀɴɴᴇʟ', url=CHNL_LNK)
                        ],[
-                          InlineKeyboardButton("Bᴏᴛ Oᴡɴᴇʀ", url="t.me/creatorbeatz")
+                          InlineKeyboardButton("Bᴏᴛ Oᴡɴᴇʀ", url="https://t.me/CinemaColonyUpdates")
                          ]
                         ]
                     )
@@ -145,7 +145,7 @@ async def fetch_reqs(bot: Client, request: ChatJoinRequest):
                           InlineKeyboardButton('Sᴜᴘᴘᴏʀᴛ Gʀᴏᴜᴘ', url=GRP_LNK),
                           InlineKeyboardButton('Uᴘᴅᴀᴛᴇs Cʜᴀɴɴᴇʟ', url=CHNL_LNK)
                        ],[
-                          InlineKeyboardButton("Bᴏᴛ Oᴡɴᴇʀ", url="t.me/creatorbeatz")
+                          InlineKeyboardButton("Bᴏᴛ Oᴡɴᴇʀ", url="https://t.me/CinemaColonyUpdates")
                          ]
                         ]
                     )
