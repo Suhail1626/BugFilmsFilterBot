@@ -281,7 +281,7 @@ async def advantage_spoll_choker(bot, query):
     if not movies:
         return await query.answer(script.OLD_ALRT_TXT.format(query.from_user.first_name), show_alert=True)
     
-    movie = re.sub(r"[^\w\s]", '', str(movies[movie_]))
+    movie = re.sub(r"[^\w\s]", '', str(movies[int(movie_)]))
     await query.answer(script.TOP_ALRT_MSG)
 
     gl = await global_filters(bot, query.message, text=movie)
