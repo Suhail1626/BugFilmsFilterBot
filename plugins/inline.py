@@ -23,7 +23,6 @@ async def inline_users(query: InlineQuery):
 @Client.on_inline_query()
 async def answer(bot, query):
     """Show search results for given inline query"""
-    chat_id = await active_connection(str(query.from_user.id))
     
     if not await inline_users(query):
         await query.answer(results=[],
@@ -51,11 +50,11 @@ async def answer(bot, query):
     offset = int(query.offset or 0)
     reply_markup = get_reply_markup(query=string)
     files, next_offset, total = await get_search_results(
-                                                  chat_id,
-                                                  string,
-                                                  file_type=file_type,
-                                                  max_results=10,
-                                                  offset=offset)
+        string,
+        file_type=file_type,
+        max_results=10,
+        offset=offset
+    )
 
     for file in files:
         title=file.file_name

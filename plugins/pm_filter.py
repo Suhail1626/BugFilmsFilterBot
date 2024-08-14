@@ -4,6 +4,7 @@ import re
 import ast
 import math
 import random
+from typing import Optional, Union
 import pyrogram
 lock = asyncio.Lock()
 
@@ -14,7 +15,7 @@ from database.connections_mdb import active_connection, all_connections, delete_
 from info import ADMINS, AUTH_CHANNEL, SUPPORT_CHAT_ID, CUSTOM_FILE_CAPTION, MSG_ALRT, PICS, \
     GRP_LNK, CHNL_LNK, LOG_CHANNEL, SPELL_IMG, \
     NO_RESULTS_MSG
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, InputMediaPhoto
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, InputMediaPhoto, Message
 from pyrogram import Client, filters, enums
 from pyrogram.errors import UserIsBlocked, MessageNotModified, PeerIdInvalid
 from utils import get_size, is_subscribed, get_poster, temp, get_settings, save_group_settings, send_all
@@ -38,15 +39,15 @@ logger.setLevel(logging.ERROR)
 BUTTONS = {}
 SPELL_CHECK = {}
 
-
 @Client.on_message(filters.group & filters.text & filters.incoming)
-async def give_filter(client, message):
+async def give_filter(client: Client, message: Message):
     if message.chat.id != SUPPORT_CHAT_ID:
         glob = await global_filters(client, message)
         manual = await manual_filters(client, message)
         settings = await get_settings(message.chat.id)
         if settings.get('auto_ffilter', True):
-            await auto_filter(client, message)
+            wait_msg = await message.reply_text("<b>Please Wait...</b>", parse_mode=enums.ParseMode.HTML, quote=True)
+            await auto_filter(client, message, wait_msg)
         else:
             await asyncio.sleep(600)
         if glob:
@@ -55,7 +56,7 @@ async def give_filter(client, message):
             await manual.delete()
     else: #a better logic to avoid repeated lines of code in auto_filter function
         search = message.text
-        _, _, total_results = await get_search_results(chat_id=message.chat.id, query=search.lower(), offset=0, filter=True)
+        _, _, total_results = await get_search_results(query=search.lower(), offset=0)
         if not int(total_results):
             return
         else:
@@ -64,9 +65,10 @@ async def give_filter(client, message):
                 parse_mode=enums.ParseMode.HTML
             )
 @Client.on_message(filters.private & filters.text & filters.incoming)
-async def pm_text(bot, message):
+async def pm_text(bot: Client, message: Message):
     glob = await global_filters(bot, message)
-    await auto_filter(bot, message)
+    wait_msg = await message.reply_text("<b>Please Wait...</b>", parse_mode=enums.ParseMode.HTML, quote=True)
+    await auto_filter(bot, message, wait_msg)
     if glob:
         await glob.delete()
 
@@ -86,7 +88,7 @@ async def next_page(bot, query):
         await query.answer(script.OLD_ALRT_TXT.format(query.from_user.first_name), show_alert=True)
         return
 
-    files, n_offset, total = await get_search_results(query.message.chat.id, search, offset=offset, filter=True)
+    files, n_offset, total = await get_search_results(search, offset=offset)
 
     try:
         n_offset = int(n_offset)
@@ -177,7 +179,7 @@ async def language_check(bot, query):
     if language != "home":
         movie = f"{movie} {language}"
 
-    files, offset, total_results = await get_search_results(query.message.chat.id, movie, offset=0, filter=True)
+    files, offset, total_results = await get_search_results(movie, offset=0)
 
     if files:
         settings = await get_settings(query.message.chat.id)
@@ -286,11 +288,11 @@ async def advantage_spoll_choker(bot, query):
 
     gl = await global_filters(bot, query.message, text=movie)
     ml = await manual_filters(bot, query.message, text=movie)
-    files, offset, total_results = await get_search_results(query.message.chat.id, movie, offset=0, filter=True)
+    files, offset, total_results = await get_search_results(movie, offset=0)
 
     if files:
         k = (movie, files, offset, total_results)
-        await auto_filter(bot, query, k)
+        await auto_filter(bot, query, None, k)
     else:
         if NO_RESULTS_MSG:
             await bot.send_message(chat_id=LOG_CHANNEL, text=(script.NORSLTS.format(query.from_user.id, query.from_user.mention, movie)))
@@ -1284,7 +1286,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
     await query.answer(MSG_ALRT)
 
     
-async def auto_filter(client, msg, spoll=False):
+async def auto_filter(client: Client, msg: Union[Message, CallbackQuery], wait_msg: Optional[Message], spoll: Optional[tuple] = None):
     if not spoll:
         message = msg
         settings = await get_settings(message.chat.id)
@@ -1292,17 +1294,18 @@ async def auto_filter(client, msg, spoll=False):
 
         if search.startswith("/") or re.findall("((^\/|^,|^!|^\.|^[\U0001F600-\U000E007F]).*)", search) or len(search) >= 100: return  # ignore commands
 
-        files, offset, total_results = await get_search_results(message.chat.id ,search.lower(), offset=0, filter=True)
+        files, offset, total_results = await get_search_results(search.lower(), offset=0)
 
         if not files:
             if settings["spell_check"]:
-                return await advantage_spell_chok(client, msg)
+                return await advantage_spell_chok(client, msg, wait_msg)
             if NO_RESULTS_MSG:
                 await client.send_message(chat_id=LOG_CHANNEL, text=(script.NORSLTS.format(msg.from_user.id, msg.from_user.mention, search)))
             await asyncio.sleep(600)
             return
     else:
         message = msg.message.reply_to_message  # msg will be callback query
+        wait_msg = await message.reply_text("<b>Please Wait...</b>", parse_mode=enums.ParseMode.HTML, quote=True)
         search, files, offset, total_results = spoll
         settings = await get_settings(message.chat.id)
     
@@ -1396,15 +1399,17 @@ async def auto_filter(client, msg, spoll=False):
     if imdb and imdb.get('poster'):
         try:
             joelkb = await message.reply_photo(photo=imdb.get('poster'), caption=cap[:1024], reply_markup=InlineKeyboardMarkup(btn), quote=True)
+            await wait_msg.delete()
         except (MediaEmpty, PhotoInvalidDimensions, WebpageMediaEmpty):
             pic = imdb.get('poster')
             poster = pic.replace('.jpg', "._V1_UX360.jpg")
             joelkb = await message.reply_photo(photo=poster, caption=cap[:1024], reply_markup=InlineKeyboardMarkup(btn), quote=True)
+            await wait_msg.delete()
         except Exception as e:
             logger.exception(e)
-            joelkb = await message.reply_text(text=cap, reply_markup=InlineKeyboardMarkup(btn), quote=True)
+            joelkb = await wait_msg.edit_text(text=cap, reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML)
     else:
-        joelkb = await message.reply_text(text=cap, reply_markup=InlineKeyboardMarkup(btn), quote=True)
+        joelkb = await wait_msg.edit_text(text=cap, reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML)
 
     # better: removed duplicate lines
     temp.SEND_ALL_TEMP[joelkb.id] = {'id': message.from_user.id, 'files': files}
@@ -1421,7 +1426,7 @@ async def auto_filter(client, msg, spoll=False):
         await msg.message.delete()
 
 
-async def advantage_spell_chok(client, msg):
+async def advantage_spell_chok(client: Client, msg: Message, wait_msg: Message):
     mv_rqst = msg.text
     settings = await get_settings(msg.chat.id)
 
@@ -1452,6 +1457,7 @@ async def advantage_spell_chok(client, msg):
             reply_markup=InlineKeyboardMarkup(button),
             quote=True
         )
+        await wait_msg.delete()
         await asyncio.sleep(30)
         await k.delete()
         await asyncio.sleep(570)
@@ -1479,6 +1485,7 @@ async def advantage_spell_chok(client, msg):
         reply_markup=InlineKeyboardMarkup(btn),
         quote=True
     )
+    await wait_msg.delete()
 
     if settings.get('auto_delete', True):
         await asyncio.sleep(600)
