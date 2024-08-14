@@ -1,4 +1,3 @@
-
 import logging
 from struct import pack
 import re
@@ -8,8 +7,7 @@ from pymongo.errors import DuplicateKeyError
 from umongo import Instance, Document, fields
 from motor.motor_asyncio import AsyncIOMotorClient
 from marshmallow.exceptions import ValidationError
-from info import DATABASE_URI, DATABASE_NAME, COLLECTION_NAME, USE_CAPTION_FILTER, MAX_B_TN, SECONDDB_URI
-from utils import get_settings, save_group_settings
+from info import DATABASE_URI, DATABASE_NAME, COLLECTION_NAME, USE_CAPTION_FILTER, SECONDDB_URI
 from sample_info import tempDict 
 
 logger = logging.getLogger(__name__)
@@ -103,27 +101,10 @@ async def save_file(media):
 
 
 
-async def get_search_results(chat_id, query, file_type=None, max_results=10, offset=0, filter=False):
+async def get_search_results(query, file_type=None, max_results=10, offset=0):
     """For given query return (results, next_offset)"""
-    if chat_id is not None:
-        settings = await get_settings(int(chat_id))
-        try:
-            if settings['max_btn']:
-                max_results = 10
-            else:
-                max_results = int(MAX_B_TN)
-        except KeyError:
-            await save_group_settings(int(chat_id), 'max_btn', False)
-            settings = await get_settings(int(chat_id))
-            if settings['max_btn']:
-                max_results = 10
-            else:
-                max_results = int(MAX_B_TN)
     query = query.strip()
-    #if filter:
-        #better ?
-        #query = query.replace(' ', r'(\s|\.|\+|\-|_)')
-        #raw_pattern = r'(\s|_|\-|\.|\+)' + query + r'(\s|_|\-|\.|\+)'
+    
     if not query:
         raw_pattern = '.'
     elif ' ' not in query:
@@ -146,20 +127,19 @@ async def get_search_results(chat_id, query, file_type=None, max_results=10, off
 
     total_results = ((await Media.count_documents(filter))+(await Media2.count_documents(filter)))
 
-    #verifies max_results is an even number or not
-    if max_results%2 != 0: #if max_results is an odd number, add 1 to make it an even number
-        logger.info(f"Since max_results is an odd number ({max_results}), bot will use {max_results+1} as max_results to make it even.")
-        max_results += 1
-
     cursor = Media.find(filter)
     cursor2 = Media2.find(filter)
+
     # Sort by recent
     cursor.sort('$natural', -1)
     cursor2.sort('$natural', -1)
+
     # Slice files according to offset and max results
     cursor2.skip(offset).limit(max_results)
+
     # Get list of files
     fileList2 = await cursor2.to_list(length=max_results)
+
     if len(fileList2)<max_results:
         next_offset = offset+len(fileList2)
         cursorSkipper = (next_offset-(await Media2.count_documents(filter)))
@@ -170,8 +150,10 @@ async def get_search_results(chat_id, query, file_type=None, max_results=10, off
     else:
         files = fileList2
         next_offset = offset + max_results
+
     if next_offset >= total_results:
         next_offset = ''
+
     return files, next_offset, total_results
 
 async def get_bad_files(query, file_type=None, filter=False):
