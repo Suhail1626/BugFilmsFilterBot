@@ -67,7 +67,8 @@ async def give_filter(client, message):
 async def pm_text(bot, message):
     glob = await global_filters(bot, message)
     await auto_filter(bot, message)
-    await glob.delete()
+    if glob:
+        await glob.delete()
 
 @Client.on_callback_query(filters.regex(r"^next"))
 async def next_page(bot, query):
@@ -280,7 +281,7 @@ async def advantage_spoll_choker(bot, query):
     if not movies:
         return await query.answer(script.OLD_ALRT_TXT.format(query.from_user.first_name), show_alert=True)
     
-    movie = re.sub(r"[^\w\s]", '', str(movies.get(movie_)))
+    movie = re.sub(r"[^\w\s]", '', str(movies[movie_]))
     await query.answer(script.TOP_ALRT_MSG)
 
     gl = await global_filters(bot, query.message, text=movie)
