@@ -46,7 +46,7 @@ async def give_filter(client: Client, message: Message):
         manual = await manual_filters(client, message)
         settings = await get_settings(message.chat.id)
         if settings.get('auto_ffilter', True):
-            wait_msg = await message.reply_text("<b>Please Wait...</b>", parse_mode=enums.ParseMode.HTML, quote=True)
+            wait_msg = await message.reply_text(f"<b>Searching For {message.text}...</b>", parse_mode=enums.ParseMode.HTML, quote=True)
             await auto_filter(client, message, wait_msg)
         else:
             await asyncio.sleep(600)
@@ -67,7 +67,7 @@ async def give_filter(client: Client, message: Message):
 @Client.on_message(filters.private & filters.text & filters.incoming)
 async def pm_text(bot: Client, message: Message):
     glob = await global_filters(bot, message)
-    wait_msg = await message.reply_text("<b>Please Wait...</b>", parse_mode=enums.ParseMode.HTML, quote=True)
+    wait_msg = await message.reply_text(f"<b>Searching For {message.text}...</b>", parse_mode=enums.ParseMode.HTML, quote=True)
     await auto_filter(bot, message, wait_msg)
     if glob:
         await glob.delete()
@@ -1305,8 +1305,8 @@ async def auto_filter(client: Client, msg: Union[Message, CallbackQuery], wait_m
             return
     else:
         message = msg.message.reply_to_message  # msg will be callback query
-        wait_msg = await message.reply_text("<b>Please Wait...</b>", parse_mode=enums.ParseMode.HTML, quote=True)
         search, files, offset, total_results = spoll
+        wait_msg = await message.reply_text(f"<b>Searching For {search}...</b>", parse_mode=enums.ParseMode.HTML, quote=True)
         settings = await get_settings(message.chat.id)
     
     pre = 'filep' if settings['file_secure'] else 'file'
