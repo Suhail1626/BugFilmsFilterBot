@@ -14,7 +14,7 @@ from database.connections_mdb import active_connection, all_connections, delete_
     make_inactive
 from info import ADMINS, AUTH_CHANNEL, SUPPORT_CHAT_ID, CUSTOM_FILE_CAPTION, MSG_ALRT, PICS, \
     GRP_LNK, CHNL_LNK, LOG_CHANNEL, SPELL_IMG, \
-    NO_RESULTS_MSG
+    NO_RESULTS_MSG, MAX_B_TN
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, InputMediaPhoto, Message
 from pyrogram import Client, filters, enums
 from pyrogram.errors import UserIsBlocked, MessageNotModified, PeerIdInvalid
@@ -125,24 +125,24 @@ async def next_page(bot, query):
             ]
         )     
 
-    if 0 < offset <= 10:
+    if 0 < offset <= MAX_B_TN:
         off_set = 0
     elif offset == 0:
         off_set = None
     else:
-        off_set = offset - 10
+        off_set = offset - MAX_B_TN
     
     if n_offset == 0:
         btn.append(
-            [InlineKeyboardButton("⌫ 𝐁𝐀𝐂𝐊", callback_data=f"next_{req}_{key}_{off_set}"), InlineKeyboardButton(f"{math.ceil(int(offset)/10)+1} / {math.ceil(total/10)}", callback_data="pages")]
+            [InlineKeyboardButton("⌫ 𝐁𝐀𝐂𝐊", callback_data=f"next_{req}_{key}_{off_set}"), InlineKeyboardButton(f"{math.ceil(int(offset)/MAX_B_TN)+1} / {math.ceil(total/MAX_B_TN)}", callback_data="pages")]
         )
     elif off_set is None:
-        btn.append([InlineKeyboardButton("𝐏𝐀𝐆𝐄", callback_data="pages"), InlineKeyboardButton(f"{math.ceil(int(offset)/10)+1} / {math.ceil(total/10)}", callback_data="pages"), InlineKeyboardButton("𝐍𝐄𝐗𝐓 ➪", callback_data=f"next_{req}_{key}_{n_offset}")])
+        btn.append([InlineKeyboardButton("𝐏𝐀𝐆𝐄", callback_data="pages"), InlineKeyboardButton(f"{math.ceil(int(offset)/MAX_B_TN)+1} / {math.ceil(total/MAX_B_TN)}", callback_data="pages"), InlineKeyboardButton("𝐍𝐄𝐗𝐓 ➪", callback_data=f"next_{req}_{key}_{n_offset}")])
     else:
         btn.append(
             [
                 InlineKeyboardButton("⌫ 𝐁𝐀𝐂𝐊", callback_data=f"next_{req}_{key}_{off_set}"),
-                InlineKeyboardButton(f"{math.ceil(int(offset)/10)+1} / {math.ceil(total/10)}", callback_data="pages"),
+                InlineKeyboardButton(f"{math.ceil(int(offset)/MAX_B_TN)+1} / {math.ceil(total/MAX_B_TN)}", callback_data="pages"),
                 InlineKeyboardButton("𝐍𝐄𝐗𝐓 ➪", callback_data=f"next_{req}_{key}_{n_offset}")
             ],
         )
@@ -1306,7 +1306,7 @@ async def auto_filter(client: Client, msg: Union[Message, CallbackQuery], wait_m
     else:
         message = msg.message.reply_to_message  # msg will be callback query
         search, files, offset, total_results = spoll
-        wait_msg = await message.reply_text(f"<b>Searching for {search}...</b>", parse_mode=enums.ParseMode.HTML, quote=True)
+        wait_msg = await message.reply_text(f"<b>Searching For {search}...</b>", parse_mode=enums.ParseMode.HTML, quote=True)
         settings = await get_settings(message.chat.id)
     
     pre = 'filep' if settings['file_secure'] else 'file'
